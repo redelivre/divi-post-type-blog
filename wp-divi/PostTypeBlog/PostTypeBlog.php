@@ -799,7 +799,7 @@ class ET_Builder_Module_Post_Type_Blog extends ET_Builder_Module_Blog {
 				'' !== $parallax_image_background ? ' et_pb_section_parallax' : '',
 				$parallax_image_background,
 				$this->get_text_orientation_classname(),
-				$this->drop_shadow_back_compatibility( $function_name )
+				$this->drop_shadow_back_compatibility2( $function_name )
 			);
 		} else {
 			$output = sprintf(

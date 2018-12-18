@@ -413,7 +413,7 @@ class ET_Builder_Module_Post_Type_Blog extends ET_Builder_Module_Blog {
 		return $posts;
 	}
 
-	function shortcode_callback( $atts, $content = null, $function_name ) {
+	function render( $atts, $content = null, $function_name ) {
 		global $post;
 
 		// Stored current global post as variable so global $post variable can be restored
@@ -429,29 +429,29 @@ class ET_Builder_Module_Post_Type_Blog extends ET_Builder_Module_Blog {
 		global $wp_filter;
 		$wp_filter_cache = $wp_filter;
 
-		$module_id           = $this->shortcode_atts['module_id'];
-		$module_class        = $this->shortcode_atts['module_class'];
-		$fullwidth           = $this->shortcode_atts['fullwidth'];
-		$posts_number        = $this->shortcode_atts['posts_number'];
-		$include_categories  = $this->shortcode_atts['include_categories'];
-		$meta_date           = $this->shortcode_atts['meta_date'];
-		$show_thumbnail      = $this->shortcode_atts['show_thumbnail'];
-		$show_content        = $this->shortcode_atts['show_content'];
-		$show_author         = $this->shortcode_atts['show_author'];
-		$show_date           = $this->shortcode_atts['show_date'];
-		$show_categories     = $this->shortcode_atts['show_categories'];
-		$show_comments       = $this->shortcode_atts['show_comments'];
-		$show_pagination     = $this->shortcode_atts['show_pagination'];
-		$background_layout   = $this->shortcode_atts['background_layout'];
-		$show_more           = $this->shortcode_atts['show_more'];
-		$offset_number       = $this->shortcode_atts['offset_number'];
-		$masonry_tile_background_color = $this->shortcode_atts['masonry_tile_background_color'];
-		$overlay_icon_color  = $this->shortcode_atts['overlay_icon_color'];
-		$hover_overlay_color = $this->shortcode_atts['hover_overlay_color'];
-		$hover_icon          = $this->shortcode_atts['hover_icon'];
-		$use_overlay         = $this->shortcode_atts['use_overlay'];
-		$header_level        = $this->shortcode_atts['header_level'];
-		$post_types          = $this->shortcode_atts['post_types'];
+		$module_id           = $this->props['module_id'];
+		$module_class        = $this->props['module_class'];
+		$fullwidth           = $this->props['fullwidth'];
+		$posts_number        = $this->props['posts_number'];
+		$include_categories  = $this->props['include_categories'];
+		$meta_date           = $this->props['meta_date'];
+		$show_thumbnail      = $this->props['show_thumbnail'];
+		$show_content        = $this->props['show_content'];
+		$show_author         = $this->props['show_author'];
+		$show_date           = $this->props['show_date'];
+		$show_categories     = $this->props['show_categories'];
+		$show_comments       = $this->props['show_comments'];
+		$show_pagination     = $this->props['show_pagination'];
+		$background_layout   = $this->props['background_layout'];
+		$show_more           = $this->props['show_more'];
+		$offset_number       = $this->props['offset_number'];
+		$masonry_tile_background_color = $this->props['masonry_tile_background_color'];
+		$overlay_icon_color  = $this->props['overlay_icon_color'];
+		$hover_overlay_color = $this->props['hover_overlay_color'];
+		$hover_icon          = $this->props['hover_icon'];
+		$use_overlay         = $this->props['use_overlay'];
+		$header_level        = $this->props['header_level'];
+		$post_types          = $this->props['post_types'];
 
 		global $paged;
 
@@ -856,7 +856,7 @@ class ET_Builder_Module_Post_Type_Blog extends ET_Builder_Module_Blog {
 	 */
 	protected function drop_shadow_back_compatibility2( $functions_name ) {
 		$utils = ET_Core_Data_Utils::instance();
-		$atts  = $this->shortcode_atts;
+		$atts  = $this->props;
 		
 		if (
 				version_compare( $utils->array_get( $atts, '_builder_version', '3.0.93' ), '3.0.94', 'lt' )

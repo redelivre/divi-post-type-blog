@@ -16,7 +16,8 @@ class RL_Extended_Filterable_Portfolio {
 		$whitelisted_fields[] = 'post_types';
 		$whitelisted_fields[] = 'order';
 		$whitelisted_fields[] = 'order_by';
-		$whitelisted_fields[] = 'tax_query_op';
+		//$whitelisted_fields[] = 'tax_query_op';
+		$whitelisted_fields[] = 'filtered_categories';
 		return $whitelisted_fields;
 		
 	}
@@ -31,6 +32,7 @@ class RL_Extended_Filterable_Portfolio {
 				isset($atts['post_types']) ||
 				isset($atts['order']) ||
 				isset($atts['order_by']) ||
+				isset($atts['filtered_categories']) ||
 				isset($atts['tax_query_op'])
 			) {
 				add_action('pre_get_posts', array($this, 'pre_get_posts'));
@@ -66,15 +68,26 @@ class RL_Extended_Filterable_Portfolio {
 			if(isset($args['order'])) $query->set('order', $args['order']);
 			if(isset($args['order_by'])) $query->set('orderby', $args['order_by']);
 			//var_dump($query->get('tax_query') ); die('3333333');
-			if(isset($args['tax_query_op'])) {
-				$tax_querys = $query->get('tax_query');
-				$op = $args['tax_query_op'];
-				foreach ($tax_querys as $key => $tax_query) {
-					$tax_query['operator'] = $op;
-					$tax_querys[$key] = $tax_query;
-				}
-				$query->set('tax_query', $tax_querys);
+			$tax_queries = $query->get('tax_query');
+			if(isset($args['filtered_categories'])) {
+				$tax_queries[] = [
+						'taxonomy' => 'project_category',
+						'field'    => 'id',
+						'operator' => 'IN',
+						'terms'    => explode(",", $args['filtered_categories']),
+				];
+				$tax_queries['operator'] = 'AND';
 			}
+			if(isset($args['tax_query_op'])) {
+				$op = $args['tax_query_op'];
+				foreach ($tax_queries as $key => $tax_query) {
+					if(is_array($tax_query)) {
+						$tax_query['operator'] = $op;
+						$tax_queries[$key] = $tax_query;
+					}
+				}		
+			}
+			$query->set('tax_query', $tax_queries);
 		}
 		//return $query;
 	}
@@ -90,6 +103,18 @@ class RL_Extended_Filterable_Portfolio {
 	}
 	
 	function get_fields($fields) {
+		$fields['filtered_categories'] = array(
+				'label'            => esc_html__( 'Filtered Categories', 'et_builder' ),
+				'type'             => 'categories',
+				'option_category'  => 'basic_option',
+				'description'      => esc_html__( 'Select the categories that you would like to be pre-filtered.', 'et_builder' ),
+				'computed_affects' => array(
+						'__project_terms',
+						'__projects',
+				),
+				'taxonomy_name'    => 'project_category',
+				'toggle_slug'      => 'main_content',
+		);
 		$fields['post_types'] = array(
 				'label'             => esc_html__( 'Post Types', 'et_builder' ),
 				'type'              => 'select',
@@ -97,6 +122,10 @@ class RL_Extended_Filterable_Portfolio {
 				'options'           => self::get_post_types(),
 				'description'       => esc_html__( 'List of post types to show on query', 'et_builder' ),
 				'toggle_slug'       => 'main_content',
+				'computed_affects' => array(
+						'__project_terms',
+						'__projects',
+				),
 				'default'			=> 'project'
 		);
 		$fields['order'] = array(
@@ -106,6 +135,9 @@ class RL_Extended_Filterable_Portfolio {
 				'options'         	=> array(
 						'DESC'  		=> esc_html__( 'Descending', 'et_builder' ),
 						'ASC' 			=> esc_html__( 'Ascending', 'et_builder' ),
+				),
+				'computed_affects' => array(
+						'__projects',
 				),
 				'description'       => esc_html__( 'Order of items', 'et_builder' ),
 				'toggle_slug'       => 'main_content',
@@ -128,6 +160,9 @@ class RL_Extended_Filterable_Portfolio {
 						'comment_count'  => esc_html__( 'Order by number of comments (available since version 2.9).', 'et_builder' ),
 						'relevance'  => esc_html__( 'Order by search terms.', 'et_builder' )
 				),
+				'computed_affects' => array(
+						'__projects',
+				),
 				'description'       => esc_html__( 'Order of items by selected option', 'et_builder' ),
 				'toggle_slug'       => 'main_content',
 				'default'				=> 'date',
@@ -137,12 +172,15 @@ class RL_Extended_Filterable_Portfolio {
 				'type'              => 'select',
 				'option_category'   => 'configuration',
 				'options'         => array(
-						'OR'  => esc_html__( 'Operator OR', 'et_builder' ),
-						'AND' => esc_html__( 'Operator AND', 'et_builder' ),
+						'IN'  => esc_html__( 'Have one of selected categories', 'et_builder' ),
+						'AND' => esc_html__( 'Have all of selected categories', 'et_builder' ),
+				),
+				'computed_affects' => array(
+						'__projects',
 				),
 				'description'       => esc_html__( 'Query tax usign selected operator', 'et_builder' ),
 				'toggle_slug'       => 'main_content',
-				'default'				=> 'OR',
+				'default'				=> 'IN',
 		);
 		return $fields;
 	}
